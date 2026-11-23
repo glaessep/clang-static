@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Drop attribution lines and trailing blank lines from the commit message.
+set -euo pipefail
+file="$1"
+tmp="$(mktemp)"
+grep -v -i -e '^Co-Authored-By:' -e '^Claude-Session:' -e 'claude.ai/code/session' "$file" > "$tmp" || true
+# Remove trailing blank lines.
+sed -e :a -e '/^[[:space:]]*$/{$d;N;ba' -e '}' "$tmp" > "$file"
+rm -f "$tmp"
