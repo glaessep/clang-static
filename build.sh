@@ -72,7 +72,9 @@ fi
 
 # 3. Configure.
 # Rule: LLVM_TARGETS_TO_BUILD is empty. Clang's libraries need no code
-# generation back end. Use the host target only if configure fails without it.
+# generation back end to parse and index code for any target triple.
+# With no back end, LLVM leaves the default target triple empty, and Clang then
+# fails with "unknown target triple". So each platform sets its own default.
 cmake_args=(
   -G Ninja
   -DCMAKE_BUILD_TYPE=Release
@@ -103,10 +105,15 @@ cmake_args=(
   -DLLVM_ENABLE_ASSERTIONS=OFF
 )
 case "$platform" in
+  linux-x86_64)
+    cmake_args+=(-DLLVM_DEFAULT_TARGET_TRIPLE=x86_64-unknown-linux-gnu)
+    ;;
   macos-arm64)
+    cmake_args+=(-DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin)
     cmake_args+=(-DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0)
     ;;
   macos-x86_64)
+    cmake_args+=(-DLLVM_DEFAULT_TARGET_TRIPLE=x86_64-apple-darwin)
     cmake_args+=(-DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0)
     ;;
 esac
