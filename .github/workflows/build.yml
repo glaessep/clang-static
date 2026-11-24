@@ -84,6 +84,9 @@ jobs:
           cd dist
           cat ./*.sha256 | sort -k2 > SHA256SUMS
           cat SHA256SUMS
-          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
-            --title "$GITHUB_REF_NAME" --notes "Static Clang libraries. Check files against SHA256SUMS." \
+          # The tag may come with a release drafted by hand. Create one only if none exists.
+          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1 ||
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" --notes "Static Clang libraries. Check files against SHA256SUMS."
+          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber \
             ./*.tar.xz ./*.sha256 SHA256SUMS
